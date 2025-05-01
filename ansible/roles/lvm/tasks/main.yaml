@@ -1,0 +1,40 @@
+- name: Install dependencies
+  apt:
+    name:
+      - libdevmapper-dev
+      - liblvm2-dev
+    state: present
+    update_cache: true
+
+- name: Clone LVM2 repo
+  git:
+    repo: https://github.com/lvmteam/lvm2
+    dest: /tmp/lvm2
+    version: v2_02_175
+
+- name: Build and install LVM2
+  shell: |
+    cd /tmp/lvm2
+    ./configure && make && make install
+
+- name: Copy lvm2app shared libraries
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "/root/liblvm2app.so", dest: "/usr/lib/liblvm2app.so" }
+    - { src: "/root/liblvm2app.so.2.2", dest: "/usr/lib64/liblvm2app.so.2.2" }
+
+- name: Run ldconfig
+  command: ldconfig
+
+- name: Clone lvm-proxy
+  git:
+    repo: https://github.com/phd-uqtr/lvm-proxy.git
+    dest: /opt/lvm-proxy
+
+- name: Run go mod commands
+  shell: |
+    cd /opt/lvm-proxy
+    go mod download && go mod tidy

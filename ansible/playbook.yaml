@@ -1,0 +1,17 @@
+- name: Set up LVM
+  hosts: lvm
+  become: true
+  roles:
+    - lvm
+
+- name: Set up GlusterFS
+  hosts: glusterfs
+  become: true
+  roles:
+    - glusterfs
+
+- name: Set up Glusterd2 and ETCD
+  hosts: glusterd2
+  become: true
+  roles:
+    - glusterd2

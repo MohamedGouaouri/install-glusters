@@ -1,0 +1,42 @@
+- name: Install GlusterFS build dependencies
+  apt:
+    name:
+      - g++
+      - build-essential
+      - automake
+      - autoconf
+      - libtool
+      - libtcmalloc-minimal4t64
+      - make
+      - libunwind-19
+      - libunwind-dev
+      - flex
+      - bison
+      - libssl-dev
+      - pkg-config
+      - libuuid1
+      - uuid
+      - uuid-dev
+      - uuid-runtime
+      - libacl1-dev
+      - zlib1g-dev
+      - libxml2-dev
+      - libtirpc-dev
+      - liburing2
+      - liburing-dev
+      - liburcu-dev
+      - glusterfs-server
+      - libglusterfs-dev
+    state: present
+    update_cache: true
+
+- name: Clone GlusterFS repo
+  git:
+    repo: https://github.com/MohamedGouaouri/glusterfs.git
+    dest: /opt/glusterfs
+    version: release-10
+
+- name: Build and install GlusterFS
+  shell: |
+    cd /opt/glusterfs
+    ./autogen.sh && ./configure --with-tcmalloc && make && make install

@@ -1,0 +1,40 @@
+- name: Install etcd
+  apt:
+    name: etcd-server
+    state: present
+    update_cache: true
+
+- name: Download glusterd2
+  get_url:
+    url: https://github.com/MohamedGouaouri/glusterd2/releases/download/latest/glusterd2.zip
+    dest: /tmp/glusterd2.zip
+
+- name: Unzip glusterd2
+  unarchive:
+    src: /tmp/glusterd2.zip
+    dest: /opt/
+    remote_src: yes
+
+- name: Move and prepare glusterd2 directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /var/lib/glusterd2
+    - /var/log/glusterd2
+    - /var/run/glusterd2
+
+- name: Start etcd
+  shell: |
+    nohup etcd \
+      --name etcd \
+      --data-dir /var/lib/glusterd2/store \
+      --listen-client-urls http://0.0.0.0:3379 \
+      --listen-peer-urls http://0.0.0.0:3380 \
+      --advertise-client-urls http://0.0.0.0:3379 &
+
+- name: Start glusterd2
+  shell: |
+    nohup /opt/glusterd2/glusterd2 \
+      --noembed \
+      --etcdendpoints http://{{ ansible_default_ipv4.address }}:3379 &
