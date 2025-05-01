@@ -17,14 +17,18 @@
     cd /tmp/lvm2
     ./configure && make && make install
 
-- name: Copy lvm2app shared libraries
-  copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    remote_src: yes
-  loop:
-    - { src: "/root/liblvm2app.so", dest: "/usr/lib/liblvm2app.so" }
-    - { src: "/root/liblvm2app.so.2.2", dest: "/usr/lib64/liblvm2app.so.2.2" }
+- name: Download liblvm2app.so.2.2 to /usr/lib64
+  get_url:
+    url: "https://github.com/MohamedGouaouri/install-glusters/raw/refs/heads/main/liblvm2app.so.2.2"
+    dest: /usr/lib64/liblvm2app.so.2.2
+    mode: '0644'
+
+- name: Create symlink from /usr/lib/liblvm2app.so to /usr/lib64/liblvm2app.so.2.2
+  file:
+    src: /usr/lib64/liblvm2app.so.2.2
+    dest: /usr/lib/liblvm2app.so
+    state: link
+
 
 - name: Run ldconfig
   command: ldconfig
